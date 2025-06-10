@@ -1,11 +1,20 @@
 #!/bin/bash
+# Exit on error, treat unset variables as an error
+set -euo pipefail
 
 # If you have a .crt instead of .der, you'll need to create a .der from the .crt:
 # sudo openssl x509 -in MOK.crt -outform der -out MOK.der
 
+# Check for root privileges
+if [[ $EUID -ne 0 ]]; then
+   echo "❌ Error: This script must be run as root or with sudo." >&2
+   exit 1
+fi
+
 # Set key filenames
 KEY="MOK.key"
 CERT="MOK.der"
+SIGN_FILE_SCRIPT="/usr/src/linux-headers-$(uname -r)/scripts/sign-file"
 
 # Check if required keys exist in the current directory
 if [[ ! -f "$KEY" || ! -f "$CERT" ]]; then
@@ -13,6 +22,21 @@ if [[ ! -f "$KEY" || ! -f "$CERT" ]]; then
     echo "Ensure that both $KEY and $CERT are present before running this script."
     exit 1
 fi
+
+# Check if sign-file script exists
+if [[ ! -x "$SIGN_FILE_SCRIPT" ]]; then
+    echo "❌ Error: The sign-file script was not found or is not executable at $SIGN_FILE_SCRIPT" >&2
+    echo "Ensure kernel headers for $(uname -r) are installed (e.g., sudo apt install linux-headers-$(uname -r))" >&2
+    exit 1
+fi
+
+# Check for required commands
+for cmd in pesign modinfo; do
+    if ! command -v "$cmd" &>/dev/null; then
+        echo "❌ Error: Required command '$cmd' not found. Please install it." >&2
+        exit 1
+    fi
+done
 
 echo "✅ MOK keys found. Proceeding with signature verification and signing..."
 
@@ -49,7 +73,7 @@ sign_file() {
     if [[ -f "$file" ]]; then
         echo "🔒 Attempting to sign: $file"
         # Execute the sign-file script and check its exit status
-        /usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 "$KEY" "$CERT" "$file"
+        "$SIGN_FILE_SCRIPT" sha256 "$KEY" "$CERT" "$file"
         if [[ $? -eq 0 ]]; then
             echo "✅ Successfully signed: $file"
         else
