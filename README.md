@@ -10,7 +10,7 @@ When Secure Boot is active on a Linux system, unsigned kernel modules are typica
 
 Before running this script, ensure you have the following:
 
-1. **MOK Keys:** A private key (MOK.key) and its corresponding DER-encoded public certificate (MOK.der). These files **must be in the same directory** as the script when you run it.  
+1. **MOK Keys:** A private key (MOK.key) and its corresponding DER-encoded public certificate (MOK.der). This script expects the *.key & *.der files **to be in the same directory** as the script when you run it.  
    * If you only have a .crt file, you can convert it to .der using OpenSSL:  
      sudo openssl x509 \-in MOK.crt \-outform der \-out MOK.der
 
