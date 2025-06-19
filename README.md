@@ -33,3 +33,8 @@ Before running this script, ensure you have the following:
    You will be prompted to set a password. After running this, **reboot your system**, and a Blue screen (MOK management screen) will appear during boot. Follow the (often challenging to understand) instructions to enroll the key using the password you set.  In my case the mok utility appears to only support the fat32 filesytem, so I copy the signing keys under the /boot/efi path, which is mapped to a fat32 partition during the debian install.
 
 6. **Reboot:** After the script completes and you've enrolled your MOK (if necessary), reboot your system to allow the signed modules to load.
+
+## **📚 Notes & References**
+
+* [Signing Kernel Modules for Secure Boot](https://www.guyrutenberg.com/2022/09/29/signing-kernel-modules-for-secure-boot/) - A detailed guide on kernel module signing by Guy Rutenberg
+
